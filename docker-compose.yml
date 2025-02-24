@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: files_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  backend:
+    build: ./packages/backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./packages/backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
+  frontend:
+    build: ./packages/frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages/frontend:/app
+      - /app/node_modules
+    environment:
+      - HOST=0.0.0.0
+    depends_on:
+      - backend
+volumes:
+  pgdata:
+  frontend_node_modules:
