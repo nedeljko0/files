@@ -9,14 +9,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   backend:
-    build: ./packages/backend
+    build: 
+      context: .
+      dockerfile: packages/backend/Dockerfile
     ports:
       - "5000:5000"
     volumes:
-      - ./packages/backend:/app
-      - /app/node_modules
+      - ./packages/backend:/app/packages/backend
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/files_db
   frontend:
     build: ./packages/frontend
     ports:

@@ -1,0 +1,41 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Folder {
+    id        String     @id @default(uuid()) @db.Uuid
+    name      String
+    documents Document[]
+    createdAt DateTime   @default(now()) @map("created_at")
+    updatedAt DateTime   @updatedAt @map("updated_at")
+    @@map("folders")
+}
+
+model Document {
+    id          String        @id @default(uuid()) @db.Uuid
+    title       String
+    description String?
+    mimeType    String        @map("mime_type")
+    folder      Folder        @relation(fields: [folderId], references: [id], onDelete: Cascade)
+    folderId    String        @map("folder_id") @db.Uuid
+    versions    FileVersion[] @relation("DocumentVersions")
+    createdAt   DateTime      @default(now()) @map("created_at")
+    updatedAt   DateTime      @updatedAt @map("updated_at")
+    @@map("documents")
+}
+
+model FileVersion {
+    id         String   @id @default(uuid()) @db.Uuid
+    document   Document @relation("DocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
+    documentId String   @map("document_id") @db.Uuid
+    path       String   @map("path")
+    name       String   @map("name")
+    size       Int      @map("size")
+    uploadedAt DateTime @default(now()) @map("uploaded_at")
+    @@map("file_versions")
+}

@@ -1,4 +1,4 @@
-# Full Stack Application
+# File Management Application 
 
 React (Vite) + Node.js + PostgreSQL application with Docker containerization.
 
@@ -41,16 +41,31 @@ React (Vite) + Node.js + PostgreSQL application with Docker containerization.
 ## 🐳 Docker Commands
 
 Start services
+
+```
 docker-compose up
+```
 
 Rebuild and start
+
+```
 docker-compose up --build
+```
 
 Stop services
+
+```
 docker-compose down
+```
 
 Remove volumes
+
+```
 docker-compose down -v
+```
 
 View logs
+
+```
 docker-compose logs [service]
+```
