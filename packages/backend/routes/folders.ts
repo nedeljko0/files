@@ -1,7 +1,7 @@
 import Router from "@koa/router";
 import { Context } from "koa";
 import { FolderService } from "../services/folders";
-import { validate } from "../middlewares/validate.js";
+import { validate } from "../middlewares/validate";
 import { createFolderSchema } from "@files/shared/validators/folders";
 
 const router = new Router({ prefix: "/folders" });
