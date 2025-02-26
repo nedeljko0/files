@@ -21,4 +21,23 @@ export class FolderService {
 			include: { documents: true },
 		});
 	}
+
+	async delete(id: string) {
+		const folder = await this.findById(id);
+		if (!folder) throw new Error(`Folder not found: ${id}`);
+
+		await prisma.folder.delete({
+			where: { id },
+		});
+	}
+
+	async update(id: string, name: string) {
+		const folder = await this.findById(id);
+		if (!folder) throw new Error(`Folder not found: ${id}`);
+
+		await prisma.folder.update({
+			where: { id },
+			data: { name },
+		});
+	}
 }
