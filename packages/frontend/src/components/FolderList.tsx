@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { FolderListItem } from "./FolderListItem";
 import CreateFolderForm from "./CreateFolderForm";
-import { PlusIcon } from "../icons";
+import { PlusIcon } from "./icons";
 import {
 	useFoldersQuery,
 	useCreateFolderMutation,
 	useDeleteFolderMutation,
 } from "../services/folderQueries";
+import { Folder } from "@files/shared/validators/folders";
 
 export function FolderList() {
 	const [isCreating, setIsCreating] = useState(false);
@@ -26,7 +27,7 @@ export function FolderList() {
 
 		try {
 			setIsCreating(true);
-			await createFolderMutate(folderName);
+			createFolderMutate(folderName);
 			return true;
 		} catch (err) {
 			console.error("Failed to create folder:", err);
@@ -36,10 +37,7 @@ export function FolderList() {
 		}
 	};
 
-	const handleDeleteFolder = async (folderId: string, e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-
+	const handleDeleteFolder = async (folderId: string) => {
 		if (isDeleting) return;
 		deleteFolderMutate(folderId);
 	};
@@ -68,7 +66,7 @@ export function FolderList() {
 						No folders yet. Create your first one!
 					</div>
 				) : (
-					folders.map((folder) => (
+					folders.map((folder: Folder) => (
 						<FolderListItem
 							key={folder.id}
 							folder={folder}

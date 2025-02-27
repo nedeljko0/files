@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FolderIcon } from "../icons/Folder";
+import { FolderIcon } from "./icons/Folder";
 
 interface Props {
 	onSubmit: (folderName: string) => Promise<boolean>;

@@ -1,12 +1,12 @@
-import { Folder } from "@files/shared";
-import { FolderIcon, TrashIcon } from "../icons";
+import { Folder } from "@files/shared/validators/folders";
+import { FolderIcon, TrashIcon } from "./icons";
 import { useState, useRef } from "react";
 import CreateFolderForm from "./CreateFolderForm";
 import { useUpdateFolderMutation } from "../services/folderQueries";
 
 interface Props {
 	folder: Folder;
-	onDelete: (id: string, e: React.MouseEvent) => void;
+	onDelete: (id: string) => void;
 	isDeleting: boolean;
 }
 
@@ -32,8 +32,7 @@ export function FolderListItem({ folder, onDelete, isDeleting }: Props) {
 		clickTimeoutRef.current = setTimeout(() => {
 			if (newClickCount === 1) {
 				window.location.href = `/folder/${folder.id}`;
-			}
-			else if (newClickCount === 2) {
+			} else if (newClickCount === 2) {
 				setIsEditing(true);
 			}
 			setClickCount(0);
@@ -79,9 +78,9 @@ export function FolderListItem({ folder, onDelete, isDeleting }: Props) {
 				</span>
 			</div>
 			<button
-				onClick={(e) => onDelete(folder.id, e)}
-				className="hidden group-hover:block text-gray-400 hover:text-red-500 transition-colors"
-				aria-label="Delete folder"
+				onClick={() => onDelete(folder.id)}
+			
+				className="hidden group-hover:block text-secondary hover:text-red-500"
 				disabled={isDeleting}
 			>
 				<TrashIcon className="h-5 w-5" />

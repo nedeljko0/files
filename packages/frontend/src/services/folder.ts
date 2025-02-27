@@ -5,20 +5,13 @@ const API_URL = import.meta.env.VITE_API_URL || "/api";
 console.log("API_URL - ", API_URL);
 const FOLDERS_ENDPOINT = `${API_URL}/folders`;
 
-export async function getFolders(): Promise<Folder[]> {
-	try {
-		const response = await fetch(FOLDERS_ENDPOINT);
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch folders: ${response.statusText}`);
-		}
-
-		return response.json();
-	} catch (error) {
-		console.error("Error in getFolders:", error);
-		throw error;
-	}
-}
+export const getFolders = async (id?: string) => {
+	const response = await fetch(
+		id ? `${FOLDERS_ENDPOINT}/${id}` : FOLDERS_ENDPOINT
+	);
+	if (!response.ok) throw new Error("Failed to fetch folders");
+	return response.json();
+};
 
 export async function getFolderById(id: string): Promise<Folder> {
 	try {

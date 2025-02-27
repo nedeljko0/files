@@ -2,6 +2,7 @@ import Koa from "koa";
 import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import folderRoutes from "./routes/folders";
+import documentRoutes from "./routes/documents";
 
 const app = new Koa();
 
@@ -29,6 +30,7 @@ app.use(async (ctx, next) => {
 
 // Routes
 app.use(folderRoutes.routes());
+app.use(documentRoutes.routes());
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

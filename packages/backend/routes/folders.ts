@@ -1,8 +1,11 @@
 import Router from "@koa/router";
 import { Context } from "koa";
 import { FolderService } from "../services/folders";
-import { validate } from "../middlewares/validate";
-import { createFolderSchema, updateFolderSchema } from "@files/shared/validators/folders";
+import { validate } from "../middleware/validate";
+import {
+	createFolderSchema,
+	updateFolderSchema,
+} from "@files/shared/validators/folders";
 
 const router = new Router({ prefix: "/folders" });
 const folderService = new FolderService();
@@ -30,9 +33,9 @@ router.delete("/:id", async (ctx: Context) => {
 	ctx.status = 204;
 });
 
-router.put("/:id", validate(updateFolderSchema) ,async (ctx: Context) => {
+router.put("/:id", validate(updateFolderSchema), async (ctx: Context) => {
 	const { name } = ctx.state.validatedData;
-	
+
 	await folderService.update(ctx.params.id, name);
 	ctx.status = 204;
 });

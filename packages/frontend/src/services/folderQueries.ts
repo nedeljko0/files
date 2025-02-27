@@ -10,10 +10,10 @@ import { createFolder, getFolders, deleteFolder, updateFolder } from "./folder";
  * This provides a better user experience by avoiding UI flicker or delay after
  * deletion actions. If the server request fails, the previous state is restored.
  */
-export function useFoldersQuery() {
+export function useFoldersQuery(id?: string) {
 	return useQuery({
-		queryKey: ["folders"],
-		queryFn: getFolders,
+		queryKey: ["folders", id],
+		queryFn: () => (id ? getFolders(id) : getFolders()),
 		retry: 1,
 	});
 }
@@ -25,15 +25,42 @@ export function useCreateFolderMutation(
 
 	return useMutation({
 		mutationFn: createFolder,
-		onSuccess: (newFolder) => {
+		onMutate: async (newFolderName) => {
+			await queryClient.cancelQueries({ queryKey: ["folders"] });
+			const previousFolders = queryClient.getQueryData<Folder[]>(["folders"]);
+
+			const optimisticFolder: Folder = {
+				id: `temp-${Date.now()}`,
+				name: newFolderName,
+			};
+
 			queryClient.setQueryData<Folder[]>(["folders"], (old = []) => [
 				...old,
-				newFolder,
+				optimisticFolder,
 			]);
+
+			return { previousFolders };
+		},
+		onError: (_err, _, context) => {
+			// If the mutation fails, roll back to the previous state
+			if (context?.previousFolders) {
+				queryClient.setQueryData(["folders"], context.previousFolders);
+			}
+		},
+		onSuccess: (newFolder) => {
+			queryClient.setQueryData<Folder[]>(["folders"], (old = []) => {
+				// Replace any temporary folder with the real one
+				const filtered = old.filter((f) => f.id && !f.id.startsWith("temp-"));
+				return [...filtered, newFolder];
+			});
 
 			if (onSuccess) {
 				onSuccess(newFolder);
 			}
+		},
+		onSettled: () => {
+			// Refetch after error or success to ensure cache is in sync
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
 		},
 	});
 }
@@ -53,7 +80,7 @@ export function useDeleteFolderMutation() {
 
 			return { previousFolders };
 		},
-		onError: (err, _, context) => {
+		onError: (_err, _, context) => {
 			if (context?.previousFolders) {
 				queryClient.setQueryData(["folders"], context.previousFolders);
 			}

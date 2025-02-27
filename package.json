@@ -4,6 +4,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "reset": "rm -rf node_modules packages/*/node_modules && yarn install"
+  },
   "dependencies": {
     "web-vitals": "^4.2.4"
   },
