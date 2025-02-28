@@ -24,14 +24,23 @@ export function useCreateFolderMutation(
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: createFolder,
-		onMutate: async (newFolderName) => {
+		mutationFn: async ({
+			name,
+			position,
+		}: {
+			name: string;
+			position: number;
+		}) => {
+			return createFolder(name, position);
+		},
+		onMutate: async (newFolder: { name: string; position: number }) => {
 			await queryClient.cancelQueries({ queryKey: ["folders"] });
 			const previousFolders = queryClient.getQueryData<Folder[]>(["folders"]);
 
 			const optimisticFolder: Folder = {
 				id: `temp-${Date.now()}`,
-				name: newFolderName,
+				name: newFolder.name,
+				position: newFolder.position,
 			};
 
 			queryClient.setQueryData<Folder[]>(["folders"], (old = []) => [
@@ -91,23 +100,33 @@ export function useDeleteFolderMutation() {
 	});
 }
 
-export function useUpdateFolderMutation(
-	onError?: (error: Error) => void,
-	onSuccess?: (updatedFolder: Folder) => void
-) {
+export function useUpdateFolderMutation() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id, name }: { id: string; name: string }) =>
-			updateFolder(id, name),
-		onError,
-		onSuccess: (updatedFolder) => {
-			queryClient.setQueryData<Folder[]>(["folders"], (old = []) =>
-				old.map((folder) =>
-					folder.id === updatedFolder.id ? updatedFolder : folder
-				)
-			);
-			onSuccess?.(updatedFolder);
+		mutationFn: async ({ id, name }: { id: string; name: string }) => {
+			const result = await updateFolder(id, name);
+			return result;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
+		},
+	});
+}
+
+export function useUpdateFolderPositionMutation() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({ id, position }: { id: string; position: number }) => {
+			const result = await updateFolder(id, undefined, position);
+			return result;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
+		},
+		onError: (error: Error) => {
+			console.error("Position update failed:", error);
 		},
 	});
 }

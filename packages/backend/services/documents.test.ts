@@ -31,6 +31,7 @@ describe("DocumentService", () => {
 				id: "123",
 				title: "Test Doc",
 				description: "Test Description",
+				position: 1,
 				mimeType: "application/pdf",
 				folderId: "456",
 				createdAt: new Date(),

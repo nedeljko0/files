@@ -11,8 +11,8 @@ const router = new Router({ prefix: "/folders" });
 const folderService = new FolderService();
 
 router.post("/", validate(createFolderSchema), async (ctx: Context) => {
-	const { name } = ctx.state.validatedData;
-	ctx.body = await folderService.create(name);
+	const { name, position } = ctx.state.validatedData;
+	ctx.body = await folderService.create(name, position);
 });
 
 router.get("/", async (ctx: Context) => {
@@ -34,10 +34,33 @@ router.delete("/:id", async (ctx: Context) => {
 });
 
 router.put("/:id", validate(updateFolderSchema), async (ctx: Context) => {
-	const { name } = ctx.state.validatedData;
+	const rawBody = await ctx.request.body;
 
-	await folderService.update(ctx.params.id, name);
-	ctx.status = 204;
+	try {
+		const parseResult = updateFolderSchema.safeParse(rawBody);
+
+		if (!parseResult.success) {
+			console.error("Validation failed:", parseResult.error);
+			ctx.status = 400;
+			ctx.body = { error: "Validation failed", details: parseResult.error };
+			return;
+		}
+
+		const updatedFolder = await folderService.update(
+			ctx.params.id,
+			parseResult.data.name,
+			parseResult.data.position
+		);
+
+		ctx.body = updatedFolder;
+		ctx.status = 200;
+	} catch (error: unknown) {
+		console.error("Update error:", error);
+		ctx.status = 400;
+		ctx.body = {
+			error: error instanceof Error ? error.message : "Unknown error occurred",
+		};
+	}
 });
 
 export default router;

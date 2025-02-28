@@ -10,9 +10,11 @@ generator client {
 model Folder {
     id        String     @id @default(uuid()) @db.Uuid
     name      String
+    position  Int?
     documents Document[]
     createdAt DateTime   @default(now()) @map("created_at")
     updatedAt DateTime   @updatedAt @map("updated_at")
+
     @@map("folders")
 }
 
@@ -20,12 +22,14 @@ model Document {
     id          String        @id @default(uuid()) @db.Uuid
     title       String
     description String?
+    position    Int?
     mimeType    String        @map("mime_type")
     folder      Folder        @relation(fields: [folderId], references: [id], onDelete: Cascade)
     folderId    String        @map("folder_id") @db.Uuid
     versions    FileVersion[] @relation("DocumentVersions")
     createdAt   DateTime      @default(now()) @map("created_at")
     updatedAt   DateTime      @updatedAt @map("updated_at")
+
     @@map("documents")
 }
 
@@ -37,5 +41,6 @@ model FileVersion {
     name       String   @map("name")
     size       Int      @map("size")
     uploadedAt DateTime @default(now()) @map("uploaded_at")
+
     @@map("file_versions")
 }

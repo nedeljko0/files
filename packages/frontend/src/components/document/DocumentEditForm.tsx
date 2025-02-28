@@ -71,7 +71,7 @@ export function DocumentEditForm({
 
 			<div className="flex justify-end gap-2">
 				<Button
-					color="primary"
+					
 					onPress={onCancel}
 					disabled={isUpdating}
 					className="p-2 rounded-md border"
@@ -82,7 +82,7 @@ export function DocumentEditForm({
 					type="submit"
 					disabled={isUpdating}
 					isLoading={isUpdating}
-					className="p-2 rounded-md text-white hover:bg-primary/90 disabled:bg-primary-disabled"
+					className="p-2 bg-primary rounded-md text-white hover:bg-primary/90 disabled:bg-primary-disabled"
 				>
 					Save Changes
 				</Button>

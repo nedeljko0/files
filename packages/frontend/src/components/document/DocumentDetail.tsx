@@ -12,6 +12,8 @@ import { DocumentVersions } from "./DocumentVersions";
 import { VersionUploadForm } from "./VersionUploadForm";
 import { UpdateDocumentForm } from "@files/shared/validators/documents";
 import { Document } from "@files/shared/validators/documents";
+import { BackArrowIcon } from "../icons";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
 	documentId: string;
@@ -21,6 +23,7 @@ interface Props {
 export function DocumentDetail({ documentId, onDelete }: Props) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [showUploadForm, setShowUploadForm] = useState(false);
+	const navigate = useNavigate();
 
 	const {
 		data: document,
@@ -78,6 +81,15 @@ export function DocumentDetail({ documentId, onDelete }: Props) {
 
 	return (
 		<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div className="p-4 border-b border-gray-200">
+				<Button
+					onPress={() => navigate(`/folder/${document.folderId}`)}
+					className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+				>
+					<BackArrowIcon className="w-5 h-5" />
+					<span>Back to folder</span>
+				</Button>
+			</div>
 			<div className="p-6">
 				{isEditing ? (
 					<DocumentEditForm

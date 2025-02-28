@@ -44,6 +44,7 @@ describe("Document Routes", () => {
 				id: "123",
 				title: "Test Document",
 				description: null,
+				position: 1,
 				mimeType: "application/pdf",
 				folderId: "456",
 				createdAt: new Date(),

@@ -3,7 +3,7 @@ import { Context } from "koa";
 import { DocumentService } from "../services/documents";
 import { validate } from "../middleware/validate";
 import {
-	createDocumentSchema,
+	createDocumentBaseSchema,
 	updateDocumentSchema,
 } from "@files/shared/validators/documents";
 import { upload, type File } from "../middleware/upload";
@@ -21,7 +21,7 @@ const documentService = new DocumentService();
 router.post(
 	"/",
 	upload.single("file"),
-	validate(createDocumentSchema),
+	validate(createDocumentBaseSchema),
 	async (ctx: Context) => {
 		const req = ctx.request as unknown as MulterRequest;
 

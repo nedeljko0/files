@@ -1,8 +1,7 @@
 import {
 	Document,
-	CreateDocumentInput,
-	UpdateDocumentInput,
-} from "@files/shared";
+	UpdateDocumentInput
+} from "@files/shared/validators/documents";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 const DOCUMENTS_ENDPOINT = `${API_URL}/documents`;
@@ -41,22 +40,13 @@ export async function getDocumentById(id: string): Promise<Document> {
 
 export async function createDocument(data: FormData): Promise<Document> {
 	try {
-		console.log("Creating document with URL:", DOCUMENTS_ENDPOINT);
-		console.log("FormData entries:");
-		for (let [key, value] of data.entries()) {
-			console.log(key, value);
-		}
-
 		const response = await fetch(DOCUMENTS_ENDPOINT, {
 			method: "POST",
 			body: data,
 		});
 
-		console.log("Response status:", response.status);
-
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.log("Error response:", errorText);
 			try {
 				const errorData = JSON.parse(errorText);
 				throw new Error(
