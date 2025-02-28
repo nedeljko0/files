@@ -27,6 +27,8 @@ export default function CreateDocumentForm({
 		formState: { errors },
 		setValue,
 		watch,
+		setError,
+		clearErrors,
 	} = useForm<CreateDocumentForm>({
 		resolver: zodResolver(createDocumentFormSchema),
 		defaultValues: {
@@ -36,10 +38,27 @@ export default function CreateDocumentForm({
 		},
 	});
 
-	// Watch the title and file fields
 	const title = watch("title");
 	const file = watch("file");
 	const isSubmitDisabled = !title || !file || isPending;
+
+	const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			if (!allowedTypes.includes(file.type)) {
+				setValue("file", null);
+				setError("file", {
+					type: "manual",
+					message: `Invalid file type. Allowed types: JPG, PNG, PDF`,
+				});
+			} else {
+				setValue("file", file);
+				clearErrors("file");
+			}
+		}
+	};
 
 	const onSubmit = (data: CreateDocumentForm) => {
 		const formData = new FormData();
@@ -103,19 +122,23 @@ export default function CreateDocumentForm({
 					>
 						File *
 					</label>
-					<input
-						type="file"
-						id="file"
-						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-						onChange={(e) => {
-							if (e.target.files?.[0]) {
-								setValue("file", e.target.files[0]);
-							}
-						}}
-					/>
-					{errors.file && (
-						<p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
-					)}
+					<div className="space-y-1">
+						<input
+							type="file"
+							id="file"
+							className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							onChange={handleFileChange}
+							accept={allowedTypes.join(",")}
+						/>
+						<p className="text-sm text-gray-500">
+							Allowed file types: JPG, PNG, PDF
+						</p>
+						{errors.file && (
+							<p className="text-sm text-red-500">
+								{errors.file.message?.toString()}
+							</p>
+						)}
+					</div>
 				</div>
 
 				<div className="flex justify-end gap-2">

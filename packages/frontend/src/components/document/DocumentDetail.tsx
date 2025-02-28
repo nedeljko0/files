@@ -42,7 +42,10 @@ export function DocumentDetail({ documentId, onDelete }: Props) {
 			setIsEditing(false);
 		});
 	const { mutate: deleteDocument, isPending: isDeleting } =
-		useDeleteDocumentMutation(document?.folderId || "", onDelete);
+		useDeleteDocumentMutation(document?.folderId || "", () => {
+			if (onDelete) onDelete();
+			navigate(`/folder/${document?.folderId}`);
+		});
 	const { mutate: uploadVersion, isPending: isUploading } =
 		useUploadFileVersionMutation(documentId, () => {
 			setShowUploadForm(false);

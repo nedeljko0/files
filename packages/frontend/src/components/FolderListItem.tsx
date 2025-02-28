@@ -19,7 +19,8 @@ export function FolderListItem({ folder, onDelete, isDeleting }: Props) {
 		useUpdateFolderMutation();
 	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const [clickCount, setClickCount] = useState(0);
-	const isDragging = useRef(false);
+
+	const isSelected = window.location.pathname === `/folder/${folder.id}`;
 
 	const {
 		attributes,
@@ -91,7 +92,8 @@ export function FolderListItem({ folder, onDelete, isDeleting }: Props) {
 		<div
 			ref={setNodeRef}
 			style={style}
-			className="flex items-center justify-between p-2 rounded-md hover:bg-gray-200 transition-colors group relative"
+			className={`flex items-center justify-between p-2 rounded-md hover:bg-gray-200 transition-colors group relative
+				${isSelected ? "border-l-4 border-primary" : ""}`}
 		>
 			<div
 				{...attributes}

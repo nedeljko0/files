@@ -1,4 +1,10 @@
+import { Folder } from "@files/shared/validators/folders";
 import { prisma } from "./prisma";
+import fs from "fs";
+
+type FolderWithNullablePosition = Omit<Folder, "position"> & {
+	position: number | null;
+};
 
 export class FolderService {
 	async create(name: string, position: number) {
@@ -24,6 +30,23 @@ export class FolderService {
 		const folder = await this.findById(id);
 		if (!folder) throw new Error(`Folder not found: ${id}`);
 
+		// Get all documents in the folder with their versions
+		const documents = await prisma.document.findMany({
+			where: { folderId: id },
+			include: { versions: true },
+		});
+
+		// Delete all associated file versions first
+		for (const document of documents) {
+			for (const version of document.versions) {
+				try {
+					fs.unlinkSync(version.path);
+				} catch (error) {
+					console.error(`Failed to delete file: ${version.path}`, error);
+				}
+			}
+		}
+
 		await prisma.folder.delete({
 			where: { id },
 		});
@@ -42,7 +65,9 @@ export class FolderService {
 				orderBy: { position: "asc" },
 			});
 
-			const currentIndex = allFolders.findIndex((f) => f.id === id);
+			const currentIndex = allFolders.findIndex(
+				(f: { id: string }) => f.id === id
+			);
 			if (currentIndex === -1) return folder;
 
 			// Remove folder from current position
@@ -52,7 +77,7 @@ export class FolderService {
 
 			// Update all positions in a transaction
 			await prisma.$transaction(
-				allFolders.map((folder, index) =>
+				allFolders.map((folder: FolderWithNullablePosition, index: number) =>
 					prisma.folder.update({
 						where: { id: folder.id },
 						data: { position: index },

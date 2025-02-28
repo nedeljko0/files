@@ -1,5 +1,4 @@
 import { prisma } from "./prisma";
-import path from "path";
 import fs from "fs";
 import { type File } from "../middleware/upload";
 

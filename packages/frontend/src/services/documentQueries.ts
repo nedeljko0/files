@@ -8,6 +8,7 @@ import {
 	deleteDocument,
 	uploadFileVersion,
 } from "./document";
+import { showAlert } from "../utils/alerts";
 
 export function useDocumentsByFolderQuery(folderId: string) {
 	return useQuery({
@@ -36,10 +37,14 @@ export function useCreateDocumentMutation(
 			queryClient.invalidateQueries({
 				queryKey: ["documents", newDocument.folderId],
 			});
-
+			showAlert("Document created successfully");
 			if (onSuccess) {
 				onSuccess(newDocument);
 			}
+		},
+		onError: (error) => {
+			showAlert("Failed to create document", true);
+			console.error("Error creating document:", error);
 		},
 	});
 }
@@ -59,10 +64,14 @@ export function useUpdateDocumentMutation(
 			queryClient.invalidateQueries({
 				queryKey: ["documents", updatedDocument.folderId],
 			});
-
+			showAlert("Document updated successfully");
 			if (onSuccess) {
 				onSuccess(updatedDocument);
 			}
+		},
+		onError: (error) => {
+			showAlert("Failed to update document", true);
+			console.error("Error updating document:", error);
 		},
 	});
 }
@@ -75,9 +84,35 @@ export function useDeleteDocumentMutation(
 
 	return useMutation({
 		mutationFn: deleteDocument,
+		onMutate: async (documentId) => {
+			await queryClient.cancelQueries({ queryKey: ["documents", folderId] });
+			const previousDocuments = queryClient.getQueryData<Document[]>([
+				"documents",
+				folderId,
+			]);
+
+			if (previousDocuments) {
+				queryClient.setQueryData(
+					["documents", folderId],
+					previousDocuments.filter((doc) => doc.id !== documentId)
+				);
+			}
+
+			return { previousDocuments };
+		},
+		onError: (err, _documentId, context) => {
+			if (context?.previousDocuments) {
+				queryClient.setQueryData(
+					["documents", folderId],
+					context.previousDocuments
+				);
+			}
+			showAlert("Failed to delete document", true);
+			console.error("Error deleting document:", err);
+		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["documents", folderId] });
-
+			showAlert("Document deleted successfully");
 			if (onSuccess) {
 				onSuccess();
 			}
@@ -95,10 +130,14 @@ export function useUploadFileVersionMutation(
 		mutationFn: (file: File) => uploadFileVersion(documentId, file),
 		onSuccess: (version) => {
 			queryClient.invalidateQueries({ queryKey: ["document", documentId] });
-
+			showAlert("File version uploaded successfully");
 			if (onSuccess) {
 				onSuccess(version);
 			}
+		},
+		onError: (error) => {
+			showAlert("Failed to upload file version", true);
+			console.error("Error uploading file version:", error);
 		},
 	});
 }

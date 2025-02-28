@@ -1,4 +1,4 @@
-# File Management Application 
+# File Management App 
 
 React (Vite) + Node.js + PostgreSQL application with Docker containerization.
 
@@ -8,24 +8,16 @@ React (Vite) + Node.js + PostgreSQL application with Docker containerization.
 2. Create an `.env` file in the root directory:
 
 ```
-# Database
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/files_db"
-# API
 VITE_API_URL="http://localhost:5000"
 ```
 
-3. Install dependencies:
+3. Build and start the application:
 
 ```
-yarn install
+docker-compose up --build 
 ```
 
-4. Start the development environment:
-
-```
-# Start all services (frontend, backend, and database)
-docker-compose up
-```
 
 The application will be available at:
 - Frontend: http://localhost:3000
@@ -57,7 +49,6 @@ The application will be available at:
 ## 📁 File Storage
 
 Files are stored locally in the `/uploads` directory. 
-For production deployment, I would use cloud storage (AWS S3, Google Cloud Storage)
 
 ## 🐳 Additional Commands
 

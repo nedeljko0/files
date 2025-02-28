@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Folder } from "@files/shared";
 import { createFolder, getFolders, deleteFolder, updateFolder } from "./folder";
+import { showAlert } from "../utils/alerts";
 
 /**
  * Folder query and mutation hooks
@@ -50,25 +51,24 @@ export function useCreateFolderMutation(
 
 			return { previousFolders };
 		},
-		onError: (_err, _, context) => {
-			// If the mutation fails, roll back to the previous state
+		onError: (err, _, context) => {
 			if (context?.previousFolders) {
 				queryClient.setQueryData(["folders"], context.previousFolders);
 			}
+			showAlert("Failed to create folder", true);
+			console.error("Error creating folder:", err);
 		},
 		onSuccess: (newFolder) => {
 			queryClient.setQueryData<Folder[]>(["folders"], (old = []) => {
-				// Replace any temporary folder with the real one
 				const filtered = old.filter((f) => f.id && !f.id.startsWith("temp-"));
 				return [...filtered, newFolder];
 			});
-
+			showAlert("Folder created successfully");
 			if (onSuccess) {
 				onSuccess(newFolder);
 			}
 		},
 		onSettled: () => {
-			// Refetch after error or success to ensure cache is in sync
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
 		},
 	});
@@ -89,13 +89,18 @@ export function useDeleteFolderMutation() {
 
 			return { previousFolders };
 		},
-		onError: (_err, _, context) => {
+		onError: (err, _, context) => {
 			if (context?.previousFolders) {
 				queryClient.setQueryData(["folders"], context.previousFolders);
 			}
+			showAlert("Failed to delete folder", true);
+			console.error("Error deleting folder:", err);
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
+		},
+		onSuccess: () => {
+			showAlert("Folder deleted successfully");
 		},
 	});
 }
@@ -110,6 +115,11 @@ export function useUpdateFolderMutation() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			showAlert("Folder updated successfully");
+		},
+		onError: (error) => {
+			showAlert("Failed to update folder", true);
+			console.error("Error updating folder:", error);
 		},
 	});
 }
@@ -124,8 +134,10 @@ export function useUpdateFolderPositionMutation() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			showAlert("Folder position updated successfully");
 		},
-		onError: (error: Error) => {
+		onError: (error) => {
+			showAlert("Failed to update folder position", true);
 			console.error("Position update failed:", error);
 		},
 	});

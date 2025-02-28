@@ -23,10 +23,12 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useNavigate } from "react-router-dom";
 
 export function FolderList() {
 	const [isCreating, setIsCreating] = useState(false);
 	const [showCreateForm, setShowCreateForm] = useState(false);
+	const navigate = useNavigate();
 
 	const { data: folders = [], isLoading, isError, error } = useFoldersQuery();
 
@@ -76,7 +78,12 @@ export function FolderList() {
 
 	const handleDeleteFolder = async (folderId: string) => {
 		if (isDeleting) return;
-		deleteFolderMutate(folderId);
+		try {
+			await deleteFolderMutate(folderId);
+			navigate("/");
+		} catch (error) {
+			console.error("Error deleting folder:", error);
+		}
 	};
 
 	const handleDragEnd = (event: DragEndEvent) => {
