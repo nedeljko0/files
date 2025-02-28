@@ -2,19 +2,27 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy package files
+# Copy workspace files
 COPY package*.json ./
+COPY yarn.lock ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY packages/frontend/package*.json ./packages/frontend/
 
 # Install dependencies
-RUN yarn install && \
-    yarn global add vite@4.0.0
+RUN yarn install --frozen-lockfile
 
-# Copy the rest of the code
-COPY . .
+# Copy source code
+COPY packages/shared ./packages/shared
+COPY packages/frontend ./packages/frontend
 
+# Build shared package
+RUN cd packages/shared && yarn build
+
+# Set working directory to frontend
+WORKDIR /app/packages/frontend
+
+# Expose port
 EXPOSE 3000
 
-# Set host to allow external connections
-ENV HOST=0.0.0.0
-
-CMD ["yarn", "dev", "--host"]
+# Start the app in development mode
+CMD ["sh", "-c", "yarn install && yarn dev --host"]
