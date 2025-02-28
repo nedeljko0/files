@@ -26,6 +26,7 @@ export default function CreateDocumentForm({
 		handleSubmit,
 		formState: { errors },
 		setValue,
+		watch,
 	} = useForm<CreateDocumentForm>({
 		resolver: zodResolver(createDocumentFormSchema),
 		defaultValues: {
@@ -34,6 +35,11 @@ export default function CreateDocumentForm({
 			description: "",
 		},
 	});
+
+	// Watch the title and file fields
+	const title = watch("title");
+	const file = watch("file");
+	const isSubmitDisabled = !title || !file || isPending;
 
 	const onSubmit = (data: CreateDocumentForm) => {
 		const formData = new FormData();
@@ -123,7 +129,7 @@ export default function CreateDocumentForm({
 					<Button
 						type="submit"
 						color="primary"
-						disabled={isPending}
+						disabled={isSubmitDisabled}
 						isLoading={isPending}
 						className="p-2 rounded-md text-white hover:bg-primary/90 disabled:bg-primary-disabled"
 					>

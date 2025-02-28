@@ -2,18 +2,34 @@
 
 React (Vite) + Node.js + PostgreSQL application with Docker containerization.
 
-## 🚀 Quick Start
+## 🚀 Project Setup
 
-### Prerequisites:
+1. Clone the repository
+2. Create an `.env` file in the root directory:
 
-- Docker
-- Docker Compose
+```
+# Database
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/files_db"
+# API
+VITE_API_URL="http://localhost:5000"
+```
 
-## Development
+3. Install dependencies:
 
-- Hot reloading enabled for frontend and backend
-- Node modules persisted in Docker volumes
-- API requests proxied through `/api` endpoint
+```
+yarn install
+```
+
+4. Start the development environment:
+
+```
+# Start all services (frontend, backend, and database)
+docker-compose up
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
 
 ## 🛠 Tech Stack
 
@@ -38,7 +54,12 @@ React (Vite) + Node.js + PostgreSQL application with Docker containerization.
   - Database: files_db
 ```
 
-## 🐳 Docker Commands
+## 📁 File Storage
+
+Files are stored locally in the `/uploads` directory. 
+For production deployment, I would use cloud storage (AWS S3, Google Cloud Storage)
+
+## 🐳 Additional Commands
 
 Start services
 
@@ -58,14 +79,10 @@ Stop services
 docker-compose down
 ```
 
-Remove volumes
+Remove volumes - will delete database data
 
 ```
 docker-compose down -v
 ```
 
-View logs
 
-```
-docker-compose logs [service]
-```
