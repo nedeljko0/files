@@ -4,7 +4,7 @@ import { Button } from "@heroui/button";
 import { z } from "zod";
 
 const versionUploadSchema = z.object({
-	file: z.instanceof(File, { message: "File is required" }),
+	file: z.instanceof(File, { message: "File is required" }).nullable(),
 });
 
 type VersionUploadForm = z.infer<typeof versionUploadSchema>;
@@ -17,19 +17,42 @@ interface Props {
 
 export function VersionUploadForm({ onSubmit, onCancel, isUploading }: Props) {
 	const {
-		register,
 		handleSubmit,
 		formState: { errors },
 		watch,
+		setValue,
+		setError,
+		clearErrors,
 	} = useForm<VersionUploadForm>({
 		resolver: zodResolver(versionUploadSchema),
 	});
 
-	const hasFile = !!watch("file");
+	const file = watch("file");
+	const isSubmitDisabled = !file || isUploading;
+
+	const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			if (!allowedTypes.includes(file.type)) {
+				setValue("file", null);
+				setError("file", {
+					type: "manual",
+					message: `Invalid file type. Allowed types: JPG, PNG, PDF`,
+				});
+			} else {
+				setValue("file", file);
+				clearErrors("file");
+			}
+		}
+	};
 
 	return (
 		<form
-			onSubmit={handleSubmit((data) => onSubmit(data.file))}
+			onSubmit={handleSubmit((data) => {
+				if (data.file) onSubmit(data.file);
+			})}
 			className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
 		>
 			<div className="mb-4">
@@ -39,19 +62,21 @@ export function VersionUploadForm({ onSubmit, onCancel, isUploading }: Props) {
 				>
 					File *
 				</label>
-				<input
-					type="file"
-					id="file"
-					className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-					onChange={(e) => {
-						if (e.target.files?.[0]) {
-							register("file").onChange(e);
-						}
-					}}
-				/>
-				{errors.file && (
-					<p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
-				)}
+				<div className="space-y-1">
+					<input
+						type="file"
+						id="file"
+						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+						onChange={handleFileChange}
+						accept={allowedTypes.join(",")}
+					/>
+					<p className="text-sm text-gray-500">
+						Allowed file types: JPG, PNG, PDF
+					</p>
+					{errors.file && (
+						<p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
+					)}
+				</div>
 			</div>
 
 			<div className="flex justify-end gap-2">
@@ -65,9 +90,9 @@ export function VersionUploadForm({ onSubmit, onCancel, isUploading }: Props) {
 				</Button>
 				<Button
 					type="submit"
-					disabled={isUploading || !hasFile}
+					disabled={isSubmitDisabled}
 					isLoading={isUploading}
-					className="p-2 rounded-md text-white hover:bg-primary/90 disabled:bg-primary-disabled"
+					className="p-2 bg-primary rounded-md text-white hover:bg-primary/90 disabled:bg-primary-disabled"
 				>
 					Upload
 				</Button>

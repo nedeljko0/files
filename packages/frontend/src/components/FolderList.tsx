@@ -109,8 +109,8 @@ export function FolderList() {
 		});
 	};
 
-	if (isLoading)
-		return <div className="p-4 text-gray-500">Loading folders...</div>;
+		if (isLoading) return <div className="p-4 bg-gray-50 h-full min-h-screen animate-pulse" />;
+
 	if (isError)
 		return <div className="p-4 text-red-500">Error: {error.message}</div>;
 

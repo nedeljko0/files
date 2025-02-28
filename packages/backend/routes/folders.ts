@@ -11,8 +11,15 @@ const router = new Router({ prefix: "/folders" });
 const folderService = new FolderService();
 
 router.post("/", validate(createFolderSchema), async (ctx: Context) => {
-	const { name, position } = ctx.state.validatedData;
-	ctx.body = await folderService.create(name, position);
+	try {
+		const { name, position } = ctx.state.validatedData;
+		ctx.body = await folderService.create(name, position);
+	} catch (error) {
+		ctx.status = 400;
+		ctx.body = {
+			error: error instanceof Error ? error.message : "Unknown error occurred",
+		};
+	}
 });
 
 router.get("/", async (ctx: Context) => {
@@ -34,28 +41,10 @@ router.delete("/:id", async (ctx: Context) => {
 });
 
 router.put("/:id", validate(updateFolderSchema), async (ctx: Context) => {
-	const rawBody = await ctx.request.body;
-
 	try {
-		const parseResult = updateFolderSchema.safeParse(rawBody);
-
-		if (!parseResult.success) {
-			console.error("Validation failed:", parseResult.error);
-			ctx.status = 400;
-			ctx.body = { error: "Validation failed", details: parseResult.error };
-			return;
-		}
-
-		const updatedFolder = await folderService.update(
-			ctx.params.id,
-			parseResult.data.name,
-			parseResult.data.position
-		);
-
-		ctx.body = updatedFolder;
-		ctx.status = 200;
-	} catch (error: unknown) {
-		console.error("Update error:", error);
+		const { name, position } = ctx.state.validatedData;
+		ctx.body = await folderService.update(ctx.params.id, name, position);
+	} catch (error) {
 		ctx.status = 400;
 		ctx.body = {
 			error: error instanceof Error ? error.message : "Unknown error occurred",

@@ -68,7 +68,7 @@ export async function deleteFolder(id: string): Promise<void> {
 			throw new Error(`Failed to delete folder: ${response.statusText}`);
 		}
 
-		return response.json();
+		return;
 	} catch (error) {
 		console.error("Error in deleteFolder:", error);
 		throw error;

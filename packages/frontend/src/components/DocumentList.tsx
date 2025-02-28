@@ -69,8 +69,7 @@ export function DocumentList({ folderId, folderName }: Props) {
 		setActiveId(null);
 	};
 
-	if (isLoading)
-		return <div className="p-4 text-gray-500">Loading documents...</div>;
+	if (isLoading) return <div className="p-4 bg-white animate-pulse" />;
 	if (isError)
 		return <div className="p-4 text-red-500">Error: {error.message}</div>;
 

@@ -24,7 +24,7 @@ describe("DocumentService", () => {
 				buffer: Buffer.from([]),
 				encoding: "7bit",
 				fieldname: "file",
-				stream: {} as any, // This is internal to Multer and rarely needed in tests
+				stream: {} as any, 
 			};
 
 			const mockDocument = {

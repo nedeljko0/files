@@ -3,8 +3,11 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import folderRoutes from "./routes/folders";
 import documentRoutes from "./routes/documents";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = new Koa();
+
+app.use(errorHandler);
 
 // Middleware
 app.use(async (ctx, next) => {
