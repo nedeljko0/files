@@ -1,6 +1,5 @@
 node_modules/
 
-packages/backend/prisma/migrations/
 packages/backend/prisma/*.db
 packages/backend/prisma/.env
 
